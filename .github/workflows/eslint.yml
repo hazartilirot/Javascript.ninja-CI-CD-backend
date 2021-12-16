@@ -16,6 +16,7 @@ jobs:
       - name: Install Node.js
         env:
           NODE_VERSION: 16.13.1
+        shell: bash -l -eo pipefail {0}
         run: nvm install $NODE_VERSION
       - name: Install dependencies
         run: npm install
