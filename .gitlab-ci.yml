@@ -1,0 +1,24 @@
+stages:
+  - lint
+
+eslint:
+  stage: lint
+  variables:
+    NODE_VERSION: 16.13.1
+  script:
+    - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+    - export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" --no-use
+    - eval "[ -f .nvmrc ] && nvm install $NODE_VERSION"
+    - npm install
+    - npm run lint
+
+prettier:
+  stage: lint
+  variables:
+    NODE_VERSION: 16.13.1
+  script:
+    - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+    - export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" --no-use
+    - eval "[ -f .nvmrc ] && nvm install $NODE_VERSION"
+    - npm install
+    - npm run check:format
