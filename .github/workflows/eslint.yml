@@ -5,19 +5,41 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-    
+
 jobs:
   eslint:
     runs-on: ubuntu-latest
+    container: node:16.13.1-alpine
     steps:
       - uses: actions/checkout@v2
-      - name: Install NVM
-        run: wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-      - name: Install Node.js
+      - name: cache node modules
+        uses: actions/cache@v2
         env:
-          NODE_VERSION: 16.13.1
-        shell: bash -l -eo pipefail {0}
-        run: nvm install $NODE_VERSION
+          cache-name: npm-${{ hashFiles('package-lock.json') }}
+        with:
+          path: ~/.npm
+          key: ${{ env.cache-name }}
+          restore-keys: |
+            ${{ env.cache-name }}
+      - name: Install dependencies
+        run: npm install
+      - name: Lint source code with ESLint
+        run: npm run lint
+
+  prettier:
+    runs-on: ubuntu-latest
+    container: node:16.13.1-alpine
+    steps:
+      - uses: actions/checkout@v2
+      - name: cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: npm-${{ hashFiles('package-lock.json') }}
+        with:
+          path: ~/.npm
+          key: ${{ env.cache-name }}
+          restore-keys: |
+            ${{ env.cache-name }}
       - name: Install dependencies
         run: npm install
       - name: Lint source code with ESLint
