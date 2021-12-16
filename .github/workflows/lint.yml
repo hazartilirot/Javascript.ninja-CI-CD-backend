@@ -8,7 +8,7 @@ on:
 
 jobs:
   eslint:
-    runs-on: node:16.13.1-alpine
+    runs-on: node:16.13.1-alpine3.12
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
@@ -17,7 +17,7 @@ jobs:
         run: npm run check:format
 
   prettier:
-    runs-on: node:16.13.1-alpine
+    runs-on: node:16.13.1-alpine3.12
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
