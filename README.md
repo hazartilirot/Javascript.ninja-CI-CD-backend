@@ -51,6 +51,8 @@ Kubernetes стал мейнстримом облачного мира. Мы в�
 
 ---
 
+
+---
 ## USE THE REFERENCE TO BEGIN WITH IF YOU WANT TO GET YOUR HANDS DIRTY
 
 ### A NUANCE FOR .YML WORKING ON GITHUB ACTIONS
