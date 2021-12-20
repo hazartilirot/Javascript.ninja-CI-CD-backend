@@ -51,6 +51,8 @@ Kubernetes стал мейнстримом облачного мира. Мы в�
 
 
 
+
+---
 ## USE THE REFERENCE TO BEGIN WITH IF YOU WANT TO GET YOUR HANDS DIRTY
 
 
@@ -99,11 +101,13 @@ first)
 Copy a key you downloaded from AWS to a linux user's directory. The key is 
 needed to connect to a remote EC2 server for the first time. Let's say it's a 
 master key:
+
 `cp /mnt/c/users/<USERNAME>/.ssh/<nameofyourkey>.pem ~/.ssh`
 
 Create a new key-pair for ssh sessions (at the client side, meaning in the 
 linux locally). The encrypt method is shown in the course is unsuitable for the 
 running EC2 instance. We should change it to meet its requirements.
+
 `ssh-keygen -f ~/.ssh/ci-key -t rsa -b 4096 -C "your_email@example.com"`
 
 The default name would be ci-key. Change an email to your real one if necessary;
@@ -170,7 +174,8 @@ Switch to root: `sudo su -`
 
 `npm install -g pm2` [source](https://www.npmjs.com/package/pm2)
 
-Run the pm2 at system startup for deploy 
+Run the pm2 at system startup for deploy
+
 `env PATH=$PATH:/user/bin pm2 startup systemd -u deploy --hp /home/deploy`
 
 ## EC2 FIREWALL SETUP
@@ -188,15 +193,8 @@ your record active, **Action** -> **Edit inbound rules**
 ## POSTGRES SETUP
 
 Fetch a postgres distro:
+
 `sudo amazon-linux-extras install postgresql13`
-
-# Using Amazon's Linux 2 AMI - Sept. 1st, 2018
-
-sudo yum update -y
-
-
-Add the postgres-9.6 to the repo
-sudo amazon-linux-extras enable postgresql13
 
 Install postgres server
 
@@ -239,7 +237,9 @@ Create a new database with **realworld** name
 
 `sudo -i -u postgres createdb realworld`
 
-Check out if a database has been created. Enter psql terminal: `sudo -i -u postgres psql`
+Check out if a database has been created. Enter psql terminal: 
+
+`sudo -i -u postgres psql`
 
 List all databases: `\l`
 
@@ -300,6 +300,7 @@ server {
 ````
 
 Link the config to sites-enabled:
+
 `ln -s /etc/nginx/sites-avaiable/realworld.conf /etc/nginx/sites-enabled/`
 
 `ll /etc/nginx/sites-enabled/`
