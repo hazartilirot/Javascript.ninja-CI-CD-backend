@@ -29,8 +29,7 @@ prettier:
   script:
     - npm install
     - npm run check:format
-#03:07:22
-# variable expansion (curly braces) is vital for injecting protected variables
+
 deploy:
   image: ubuntu:latest
   stage: deploy
