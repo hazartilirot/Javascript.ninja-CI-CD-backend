@@ -63,6 +63,7 @@ For GitHub Actions, before run: directive add shell as it goes:
 
 `run: nvm install $NODE_VERSION`
 
+<<<<<<< HEAD
 Those commands would be irrelevant in the future since Docker images would
 be used, but at the moment it's needed to carry on installing NVM
 
