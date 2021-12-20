@@ -130,10 +130,11 @@ I consistently received a permission error (share your experience with
 others provided you succeeded in the step):
 
 Go to a local linux directory in your computer would be:
-`\\wsl$\Ubuntu-20.04\home\<USERPROFILE>\.ssh`
 
-Open `ci-key.pub` with a text editor and CTRL + A, CTRL + C; Provided you've 
-got a live connection with the EC2 instance, logged in as a deploy user:
+`clip.ext < ~/.ssh/ci-key.pub`
+
+Provided you've got a live connection with the EC2 instance, logged in as a 
+deploy user:
 
 - `mkdir .ssh` create .ssh directory
 - `cd .ssh` enter into it
