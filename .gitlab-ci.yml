@@ -1,15 +1,20 @@
 stages:
   - lint
+  - prettier
+  - deploy
 
 cache:
   key: $CI_COMMIT_REF_SLUG
   paths:
     - .npm/
 
-before_script:
-  - npm ci --cache .npm --prefer-offline
+.default-cache: &default-cache
+  before_script:
+    - npm ci --cache .npm --prefer-offline
 
 eslint:
+  extends:
+    - .default-cache
   image: node:16.13.1-alpine
   stage: lint
   script:
@@ -17,8 +22,28 @@ eslint:
     - npm run lint
 
 prettier:
+  extends:
+    - .default-cache
   image: node:16.13.1-alpine
   stage: lint
   script:
     - npm install
     - npm run check:format
+#03:07:22
+# variable expansion (curly braces) is vital for injecting protected variables
+deploy:
+  image: ubuntu:latest
+  stage: deploy
+  script:
+    - apt -qq update && apt upgrade -qqy openssh-client rsync
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+    - rsync -a --progress
+      --human-readable --delete
+      --exclude-from '.gitignore'
+      --exclude .gitignore
+      --exclude .git
+      . deploy@$REMOTE_HOST:~/realworld/
