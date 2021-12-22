@@ -1,5 +1,6 @@
 stages:
   - lint
+  - prettier
   - deploy
 
 cache:
@@ -33,10 +34,15 @@ deploy:
   image: ubuntu:latest
   stage: deploy
   script:
-    - apt -qq update && apt upgrade -qqy openssh-client
+    - apt -qq update && apt upgrade -qqy openssh-client rsync
     - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - #injected from GitLab
+    - echo "${SSH_PRIVATE_KEY}" | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-    - scp -r $PWD deploy@$REMOTE_HOST:~/realworld
+    - echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+    - rsync -a --progress
+      --human-readable --delete
+      --exclude-from '.gitignore'
+      --exclude .gitignore
+      --exclude .git
+      . deploy@$REMOTE_HOST:~/realworld/

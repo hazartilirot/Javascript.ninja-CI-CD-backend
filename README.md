@@ -49,14 +49,11 @@ Webpack, lazy-load, отсутствующие чанки после депло�
 ### Семинар "Kubernetes и CI/CD"
 Kubernetes стал мейнстримом облачного мира. Мы воспользуемся им, чтобы отправить наш код в облака и все это - под управлением pipeline и из максимально "неудобного положения" - когда frontend и backend лежат в разных репозиториях
 
-
-
-
 ---
+
 ## USE THE REFERENCE TO BEGIN WITH IF YOU WANT TO GET YOUR HANDS DIRTY
 
-
-### A NUANCE FOR .YML WORKING ON GITHUB ACTIONS 
+### A NUANCE FOR .YML WORKING ON GITHUB ACTIONS
 
 **timeline** ~00:40:00
 
@@ -66,8 +63,8 @@ For GitHub Actions, before run: directive add shell as it goes:
 
 `run: nvm install $NODE_VERSION`
 
-Those commands would be irrelevant in the future since Docker images would 
-be used, but at the moment it's needed to carry on installing NVM 
+Those commands would be irrelevant in the future since Docker images would
+be used, but at the moment it's needed to carry on installing NVM
 
 ## CREATE A REMOTE INSTANCE OF EC2
 
@@ -80,32 +77,32 @@ Being able to set a chmod permissions, open **wsl.conf** file
 `sudo nano /etc/wsl.conf`
 
 Paste the snippet into the file. wsl --shutdown required
-````
+```
 [automount]
 options = "metadata"
-````
+```
 
-My key has been stored in a user directory **%userprofile%/.ssh/** I would 
+My key has been stored in a user directory **%userprofile%/.ssh/** I would
 use the path to the key in order to connect to the remote host
 
 `ssh -i %userprofile%/.ssh/<nameofyourkey>.pem ec2-user@REMOTE_IP_ADDRESS`
 
-To avoid further confusions switch your terminal to a linux environment. Just 
-type `bash` in the terminal and hit enter. Note, you have to install [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) 
+To avoid further confusions switch your terminal to a linux environment. Just
+type `bash` in the terminal and hit enter. Note, you have to install [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
 first)
 
-## SET UP A SSH CONNECTION, CREATE A NEW ACCOUNT, 
+## SET UP A SSH CONNECTION, CREATE A NEW ACCOUNT,
 
 **timeline** 2:04:00
 
-Copy a key you downloaded from AWS to a linux user's directory. The key is 
-needed to connect to a remote EC2 server for the first time. Let's say it's a 
+Copy a key you downloaded from AWS to a linux user's directory. The key is
+needed to connect to a remote EC2 server for the first time. Let's say it's a
 master key:
 
 `cp /mnt/c/users/<USERNAME>/.ssh/<nameofyourkey>.pem ~/.ssh`
 
-Create a new key-pair for ssh sessions (at the client side, meaning in the 
-linux locally). The encrypt method is shown in the course is unsuitable for the 
+Create a new key-pair for ssh sessions (at the client side, meaning in the
+linux locally). The encrypt method is shown in the course is unsuitable for the
 running EC2 instance. We should change it to meet its requirements.
 
 `ssh-keygen -f ~/.ssh/ci-key -t rsa -b 4096 -C "your_email@example.com"`
@@ -129,29 +126,31 @@ Set a new password for the new user
 Copy a key from your local **~/.ssh** to the EC2 instance (in an EC2 terminal,
 as deploy user, `sudo su - deploy`):
 
-I personally was unable to copy keys from my local host to the EC2 instance. 
-I consistently received a permission error (share your experience with 
+I personally was unable to copy keys from my local host to the EC2 instance.
+I consistently received a permission error (share your experience with
 others provided you succeeded in the step):
 
 Go to a local linux directory in your computer would be:
 
 `clip.ext < ~/.ssh/ci-key.pub`
 
-Provided you've got a live connection with the EC2 instance, logged in as a 
+Provided you've got a live connection with the EC2 instance, logged in as a
 deploy user:
 
 - `mkdir .ssh` create .ssh directory
 - `cd .ssh` enter into it
+
 ---
+
 - `touch authorized_keys` create a new file
 - `nano authorized_keys` open it with a nano editor
 - `paste your key with a right mouse button` paste key
 - `press CTRL + O, CTRL + X` save it and exit
 
-**authorized_keys** - is needed to reach our deploy user via SSH with a 
+**authorized_keys** - is needed to reach our deploy user via SSH with a
 custom key.
 
-Type `exit` and hit enter as many times as needed to reach your local Bash 
+Type `exit` and hit enter as many times as needed to reach your local Bash
 terminal. Then try to reconnect to a remote host with new keys as a deploy user
 
 `ssh -i ~/.ssh/ci-key deploy@PUBLIC_IP4_ADDRESS`
@@ -170,7 +169,7 @@ Switch to root: `sudo su -`
 
 `sudo yum install -y nodejs`
 
-`sudo amazon-linux-extras install nginx1` 
+`sudo amazon-linux-extras install nginx1`
 
 `npm install -g pm2` [source](https://www.npmjs.com/package/pm2)
 
@@ -180,15 +179,16 @@ Run the pm2 at system startup for deploy
 
 ## EC2 FIREWALL SETUP
 
-Open AWS Console Home Page, go to EC2, click on the instance you've created, 
-there would be a Security Tab. SSH InBound port is opened, now, on a panel, 
-on the left side, click on  **Network & Security**, click on **Security Group**, set 
-your record active, **Action** -> **Edit inbound rules** 
-````
+Open AWS Console Home Page, go to EC2, click on the instance you've created,
+there would be a Security Tab. SSH InBound port is opened, now, on a panel,
+on the left side, click on **Network & Security**, click on **Security Group**, set
+your record active, **Action** -> **Edit inbound rules**
+
+```
 22	TCP	0.0.0.0/0	<NameOfYourRule>
 80	TCP	0.0.0.0/0	<NameOfYourRule>
 80	TCP	::/0	        <NameOfYourRule>
-````
+```
 
 ## POSTGRES SETUP
 
@@ -205,11 +205,12 @@ Create postgres data dir
 `sudo /usr/bin/postgresql-setup --initdb`
 
 Create a new pg_hba.conf to allow postgres to use password Auth
-````
+
+```
 echo "local all all peer" >  ./pg_hba.conf
 echo "host  all all 127.0.0.1/32 password" >> ./pg_hba.conf
 echo "host  all all ::1/128 ident" >> ./pg_hba.conf
-````
+```
 
 Change perms to postgres and move it into place
 
@@ -237,7 +238,7 @@ Create a new database with **realworld** name
 
 `sudo -i -u postgres createdb realworld`
 
-Check out if a database has been created. Enter psql terminal: 
+Check out if a database has been created. Enter psql terminal:
 
 `sudo -i -u postgres psql`
 
@@ -245,16 +246,16 @@ List all databases: `\l`
 
 Create a new user: `CREATE USER realworld WITH ENCRYPTED PASSWORD 'realworld';`
 
-Grant all access to a new user: `GRANT ALL PRIVILEGES ON DATABASE realworld TO 
-realworld;`
+Grant all access to a new user: `GRANT ALL PRIVILEGES ON DATABASE realworld TO realworld;`
 
 Quit Postgres terminal `\q` returning to the root `exit`
 
 ## NGINX SETUP
-````
+
+```
 sudo mkdir /etc/nginx/sites-available
 sudo mkdir /etc/nginx/sites-enabled
-````
+```
 
 Open the following file:
 
@@ -270,7 +271,8 @@ Create a new config for a **realworld**
 
 Copy text, paste the config into file, save it, and exit. Don't forget to change
 (**PUBLIC_IP4_ADDRESS**) to your EC2 instance.
-````
+
+```
 upstream backend {
   server 127.0.0.1:3000;
   keepalive 64;
@@ -297,7 +299,7 @@ server {
     proxy_read_timeout 240s;
   }
 }
-````
+```
 
 Link the config to sites-enabled:
 
@@ -308,8 +310,8 @@ Link the config to sites-enabled:
 Execute the command to get a response from nginx
 `nginx -t`
 
->nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
+> nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+> nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 ## CONFIGURING PM2 AS deploy USER
 
@@ -331,7 +333,8 @@ Then enter to it to make changes
 `nano ecosystem.config.js`
 
 The content you need to place into the file:
-````
+
+```
 module.exports = {
   apps : [{
     script: 'lib/server.js'
@@ -343,28 +346,80 @@ module.exports = {
     'DB_PASSWORD': 'realworld',
   }
 };
-````
+```
 
-Open a Windows Command Prompt, note we need a linux, so type bash and hit 
-enter. Then you mustn't be suspicious we use a clip.exe in a linux 
-environment, just use the feature which will copy the guts of your file into 
+Open a Windows Command Prompt, note we need a linux, so type bash and hit
+enter. Then you mustn't be suspicious we use a clip.exe in a linux
+environment, just use the feature which will copy the guts of your file into
 clipboard:
 
 `clip.exe < ~/.ssh/ci-key`
 
-Open the main **ci-key** file with a text editor 
+Open the main **ci-key** file with a text editor
 
-copy a key to clipboard, then the key must be added as an 
-environment variable in GitLab CI/CD settings, in Variables. Simply, on the 
+copy a key to clipboard, then the key must be added as an
+environment variable in GitLab CI/CD settings, in Variables. Simply, on the
 left panel click on Settings -> CI/CD -> Variables
 
-Key `SSH_PRIVATE_KEY`, Value: `<Paste the key from the clipboard>`
+**Key:** `SSH_PRIVATE_KEY`, **Value:** `<Paste the key from the clipboard>`
 
-Repeat the same steps `clip.exe < ~/.ssh/authorized_keys`, 
+Don't close the tab with keys on GitLab in your Chrome. If you're still
+connected to your EC2 instance disconnect it, just type `exit` and hit enter
+as many times as you find yourself in a local terminal. If you're closed a
+tab with ssh connection, it's okay, type `bash` to get to linux environment.
 
-create a key: `SSH_KNOWN_HOSTS`, Value: `<Paste the result of your clipboard>`, 
-This time delete everything, but the last raw (if there are many). Expect the 
-line to being with the following letters and end with your email
->ssh-rsa BBBBB3NzaC1yc2EAAAADAQABAAACAQDt4aLvgsR
+Remove a known_hosts file
 
+`rm ~/.ssh/known_hosts` (it's a local copy on your computer)
 
+On another tab (open it), type `bash` once again and establish a new
+connection with your EC2 instance
+
+`ssh -i %userprofile%/.ssh/ci-key deploy@IP_ADDRESS`
+
+There must be a message going like this
+
+> The authenticity of host IP_ADDRESS (IP_ADDRESS)' can't be established.
+> ECDSA key fingerprint is SHA256:o74AATWsN8g8ydFUNysdfsdfsdf1oyVcB/lF9rVuqFvKpM.
+> Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+> Warning: Permanently added 'IP_ADDRESS' (ECDSA) to the list of known hosts.
+> Last login: Wed Dec 22 15:25:51 2021 from IP_ADDRESS_ISP_PROVIDER
+
+Type `yes`
+
+Now, we need to copy the inserted info in a new known_hosts file. Execute
+the following command on your first tab (with a local terminal)
+
+`clip.exe < ~/.ssh/known_hosts`,
+
+That's it. Create a new variable in GitLab tab in your Browser
+
+**Key:** `SSH_KNOWN_HOSTS`, **Value:** `<Paste the result of your clipboard>`,
+
+To avoid exposing public EC2 IP ADDRESS of our instance some additional
+steps are required:
+
+**Key:** `REMOTE_HOST`, **Value:** `<Paste the public IP address of your EC2 instace>`
+
+UNPROTECT flags of **REMOTE_HOST**, **SSH_KNOWN_HOSTS**, **SSH_PRIVATE_KEY**
+
+Otherwise you won't be able to inject those variables`
+
+```
+deploy:
+  image: ubuntu:latest
+  stage: deploy
+  script:
+    - apt -qq update && apt upgrade -qqy openssh-client rsync
+    - eval $(ssh-agent -s)
+    - echo "${SSH_PRIVATE_KEY}" | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+    - echo "deploy@${REMOTE_HOST}:~/realworld/" | rsync -a --progress
+      --human-readable --delete
+      --exclude-from '.gitignore'
+      --exclude .gitignore
+      --exclude .git
+      . -
+```
