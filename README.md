@@ -286,12 +286,12 @@ upstream backend {
 
 server {
   listen 80 default_server;
-  listen [::]:80 default_server;
+  listen [::]:80 ipv6only=on default_server;
   server_name app.PUBLIC_IP4_ADDRESS.nip.io;
   index index.html;
-  root /home/deploy/realworld;
+  root /home/deploy/realworld/public;
 
-  location / {
+  location /api {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header Host $http_host;
@@ -300,7 +300,7 @@ server {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
 
-    proxy_pass http://backend/;
+    proxy_pass http://backend;
     proxy_redirect off;
     proxy_read_timeout 240s;
   }
@@ -309,11 +309,30 @@ server {
 
 Link the config to sites-enabled:
 
-`ln -s /etc/nginx/sites-avaiable/realworld.conf /etc/nginx/sites-enabled/`
+`ln -s /etc/nginx/sites-available/realworld.conf /etc/nginx/sites-enabled/`
 
 `ll /etc/nginx/sites-enabled/`
 
-Execute the command to get a response from nginx
+Open the main configuration file `nano /etc/nginx/nginx.conf`
+
+Find a specified place for an insertion adding the line `include /etc/nginx/sites-enabled/*;` as demonstrated:
+
+```
+    # Load modular configuration files from the /etc/nginx/conf.d directory.
+    # See http://nginx.org/en/docs/ngx_core_module.html#include
+    # for more information.
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*; ### ADD THIS LINE ONLY ###
+
+    server {
+```
+
+Execute all commands in the following order (look at any errors):
+
+`service nginx restart`
+
+`service nginx status`
+
 `nginx -t`
 
 > nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
@@ -343,16 +362,20 @@ The content you need to place into the file:
 ```
 module.exports = {
   apps : [{
-    script: 'lib/server.js'
+    name: 'realworld',
+    script: 'lib/server.js',
+    env: {
+        NODE_ENV: 'production',
+        DB_NAME: 'realworld',
+        DB_USER: 'realworld',
+        DB_PASSWORD: 'realworld',
+        SECRET: 'realworld'
+    }
   }],
-  'env_production': {
-    'NODE_ENV': 'production',
-    'DB_NAME': 'realworld',
-    'DB_USER': 'realworld',
-    'DB_PASSWORD': 'realworld',
-  }
 };
 ```
+
+Execute `pm2 start ~/realworld/ecosystem.config.js`
 
 Open a Windows Command Prompt, note we need a linux, so type bash and hit
 enter. Then you mustn't be suspicious we use a clip.exe in a linux
@@ -469,3 +492,29 @@ drwxrwxrwx  2 deploy deploy    139 Dec 22 16:22 test-support/
 There might be some annoying errors relating to the Prettier stage. If it
 persists just try to run in the backend directory `npm run format` and `npm run check:format`. As a radical measurement just delete the stage if you
 can't pass it for no reason.
+
+Add the line to the deploy stage:
+
+`- ssh deploy@$REMOTE_HOST "pushd ~/realworld && npm install && pm2 restart realworld && popd"`
+
+# FRONTEND
+
+If you're experiencing an issue relating to the HTTP 403 Forbidden response
+status code, connect to you EC2 instance as **ec2-user**, then switch to
+**root** and check out permissions on a set of directories:
+
+`namei -om "/home/deploy/realworld/public"`
+
+Basically, at any level set deploy:deploy
+
+```
+chown -R deploy:deploy "/home"
+chown -R deploy:deploy "/home/deploy"
+chown -R deploy:deploy "/home/deploy/realworld"
+chown -R deploy:deploy "/home/deploy/realworld/public"
+```
+
+In your front end project, in Gitlab, go to settings -> variables and add
+another one environment variable to those three you already have:
+
+**Key:** `REACT_APP_BACKEND_URL`, **Value:** `<http://app.PUBLIC_IP4_ADDRESS.nip.io/api>`

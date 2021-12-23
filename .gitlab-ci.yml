@@ -46,3 +46,4 @@ deploy:
       --exclude .gitignore
       --exclude .git
       . deploy@$REMOTE_HOST:~/realworld/
+    - ssh deploy@$REMOTE_HOST "pushd ~/realworld && npm install && pm2 restart realworld && popd"
