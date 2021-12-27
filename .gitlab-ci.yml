@@ -43,7 +43,7 @@ deploy:
     - rsync -a --progress
       --human-readable --delete
       --exclude-from '.gitignore'
-      --exclude .gitignore
-      --exclude .git
+      --exclude-from='.gitignore'
+      --exclude={'public/','\.[a-z]*','*.yml','*.md','*.png','docs/','test-support/'}
       . deploy@$REMOTE_HOST:~/realworld/
     - ssh deploy@$REMOTE_HOST "pushd ~/realworld && npm install && pm2 restart realworld && popd"
