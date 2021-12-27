@@ -518,3 +518,63 @@ In your front end project, in Gitlab, go to settings -> variables and add
 another one environment variable to those three you already have:
 
 **Key:** `REACT_APP_BACKEND_URL`, **Value:** `<http://app.PUBLIC_IP4_ADDRESS.nip.io/api>`
+
+# GITHUB ACTIONS .yml
+
+There are some issues with the .yml in the course since the service hadn't
+been unavailable and the tutor couldn't have tested it.
+
+Open the .yml and get familiar yourself with its content. In the builder
+stage I've added a new task which would be responsible to filter out all
+unnecessary files, but build/ directory and the actual file with irrelevant
+files and directories which we would exclude in a synchronizing process with
+our remote machine at the deploy stage
+
+```
+    - name: Creating a Sanitizer list
+      run: |
+        apk -U add findutils
+        find -maxdepth 1 -mindepth 1 -not -name "build" -printf "%P\\n" > build/sanitizer.txt
+        cat build/sanitizer.txt
+```
+
+Go in the GitHub's project to Settings, then Secrets and add all environment
+variables REACT_APP_BACKEND_URL, REMOTE_HOST, SSH_KNOWN_HOSTS,
+SSH_PRIVATE_KEY. Repeat the procedure for the beck end project
+
+We then pass the REACT_APP_BACKEND_URL with an IP address of our back end
+server once it starts building the project.
+
+```
+- name: Building our application
+      run: REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }} npm run build
+```
+
+After injecting our certificate
+
+```
+run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+        echo "${SSH_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+```
+
+a new permissions to a certificate must be re-set because the system use by
+GITHUB ACTIONS would complain:
+
+`chmod 400 ~/.ssh/id_rsa`
+
+Once the process comes to the rsync's step, we have to change our old
+snippet to:
+
+```
+      run: |
+        rsync -a --progress \
+        --human-readable --delete \
+        --exclude={'.git','sanitizer.txt'} \
+        --exclude-from='sanitizer.txt' \
+        . deploy@${REMOTE_HOST}:~/realworld/public/
+```
+
+All listed files and directories in sanitizer.txt would be omitted.

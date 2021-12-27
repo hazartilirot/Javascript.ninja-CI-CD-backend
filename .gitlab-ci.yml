@@ -39,7 +39,7 @@ deploy:
     - echo "${SSH_PRIVATE_KEY}" | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo "${SSH_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+    - echo "${SSH_KNOWN_HOSTS}" > ~/.ssh/known_hosts
     - rsync -a --progress
       --human-readable --delete
       --exclude-from '.gitignore'

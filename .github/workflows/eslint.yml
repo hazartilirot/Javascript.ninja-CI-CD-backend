@@ -19,8 +19,7 @@ jobs:
         with:
           path: ~/.npm
           key: ${{ env.cache-name }}
-          restore-keys: |
-            ${{ env.cache-name }}
+          restore-keys: ${{ env.cache-name }}
       - name: Install dependencies
         run: npm install
       - name: Lint source code with ESLint
@@ -38,9 +37,37 @@ jobs:
         with:
           path: ~/.npm
           key: ${{ env.cache-name }}
-          restore-keys: |
-            ${{ env.cache-name }}
+          restore-keys: ${{ env.cache-name }}
       - name: Install dependencies
         run: npm install
       - name: Lint source code with ESLint
-        run: npm run lint
+        run: npm run check:format
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Esteblish a SSH connection
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+          echo "${SSH_KNOWN_HOSTS}" > ~/.ssh/known_hosts
+          chmod 400 ~/.ssh/id_rsa
+      - name: Copying files to our remote EC2 instance
+        env:
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        run: |
+          rsync -a --progress \
+          --human-readable --delete \
+          --exclude-from='.gitignore' \
+          --exclude={'public/','\.[a-z]*',\
+          '*.yml','*.md','*.png','docs/','test-support/'} \
+          . deploy@${REMOTE_HOST}:~/realworld/
+      - name: running application
+        env:
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        run: ssh deploy@${REMOTE_HOST} "pushd ~/realworld && npm install && pm2 restart realworld && popd"
